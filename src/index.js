@@ -1,13 +1,22 @@
 const express = require('express');
-const path = require('path');
+const useragent = require('express-useragent');
+const fs =  require('fs');
+const { composeLog } = require('./util');
 
 require('dotenv').config();
 
 const app = express();
+app.use(useragent.express());
 const port = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+app.get('/', (req, res) => {
 
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+    fs.appendFile(process.env.LOGS_PATH, composeLog(req), (err) => {
+        if (err) throw err;
+        console.log('Saved!');
+    });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+    res.send('Hello World!');
+});
+
+app.listen(port, () => console.log(`App listening on port ${port}!`));
