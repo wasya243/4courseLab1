@@ -9,9 +9,14 @@ const app = express();
 app.use(useragent.express());
 const port = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-
-    fs.appendFile(process.env.LOGS_PATH, composeLog(req), (err) => {
+app.get('/', async (req, res) => {
+    // check if logs dir is present
+    const LOGS_PATH = process.env.LOGS_PATH;
+    if(!fs.existsSync(LOGS_PATH)) {
+        // if not - create a folder
+        fs.mkdir(LOGS_PATH);
+    }
+    fs.appendFile(`${LOGS_PATH}/access.log`, composeLog(req, process.env.TEMPLATE), (err) => {
         if (err) throw err;
         console.log('Saved!');
     });

@@ -16,9 +16,29 @@ function getRequestInfo(request) {
     };
 }
 
-function composeLog(request) {
-    const { ip, browser, version, timeOfRequest } = getRequestInfo(request);
-    const log = `$Request made from ${ip} using browser ${browser} of ${version} version at ${timeOfRequest}\n`;
+function getProps(template) {
+    const regex = /\${(.*?)\}/gm;
+    const matches = [];
 
-    return new Uint8Array(Buffer.from(log));
+    let lastMatch;
+    do {
+        lastMatch = regex.exec(template);
+        if (lastMatch) {
+            matches.push(lastMatch[1]);
+        }
+    } while (lastMatch !== null);
+
+    return matches;
+}
+
+function composeLog(request, template) {
+    // get req obj info
+    const reqInfo = getRequestInfo(request);
+    // get subset of prop to use in log
+    const propsToUse = getProps(template);
+    let templateCopy = template.slice();
+
+    propsToUse.forEach(prop => templateCopy = templateCopy.replace(`\$\{${prop}\}`, reqInfo[prop]));
+
+    return new Uint8Array(Buffer.from(templateCopy));
 }
