@@ -7,16 +7,18 @@ require('dotenv').config();
 
 const app = express();
 app.use(useragent.express());
-const port = process.env.PORT || 3000;
+
+const PORT = process.env.PORT || 3000;
+const LOGS_PATH = process.env.LOGS_PATH;
+const TEMPLATE = process.env.TEMPLATE;
 
 app.get('/', async (req, res) => {
     // check if logs dir is present
-    const LOGS_PATH = process.env.LOGS_PATH;
     if(!fs.existsSync(LOGS_PATH)) {
         // if not - create a folder
         fs.mkdir(LOGS_PATH);
     }
-    fs.appendFile(`${LOGS_PATH}/access.log`, composeLog(req, process.env.TEMPLATE), (err) => {
+    fs.appendFile(`${LOGS_PATH}/access.log`, composeLog(req, TEMPLATE), (err) => {
         if (err) throw err;
         console.log('Saved!');
     });
@@ -24,4 +26,4 @@ app.get('/', async (req, res) => {
     res.send('Hello World!');
 });
 
-app.listen(port, () => console.log(`App listening on port ${port}!`));
+app.listen(PORT, () => console.log(`App listening on port ${PORT}!`));
